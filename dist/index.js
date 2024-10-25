@@ -28327,14 +28327,19 @@ async function setup() {
         return;
     }
     core.info(`Setting up esbuild ${version} for ${platform}-${arch}`);
-    (0, child_process_1.exec)(`curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh\nchmod +x esbuild`, async (error, stdout, stderr) => {
+    (0, child_process_1.exec)(`curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh\nchmod +x esbuild`, error => {
         if (error) {
             throw new Error(`Failed to install esbuild: ${error.message}`);
         }
-        core.info(`Caching esbuild ${version}`);
-        cachedPath = await tc.cacheFile('esbuild', 'esbuild', 'esbuild', version, arch);
-        core.addPath(cachedPath);
-        core.info('Successfully set up esbuild 🎉');
+        const promise = (async () => {
+            core.info(`Caching esbuild ${version}`);
+            cachedPath = await tc.cacheFile('esbuild', 'esbuild', 'esbuild', version, arch);
+            core.addPath(cachedPath);
+            core.info('Successfully set up esbuild 🎉');
+        })();
+        promise.catch((error) => {
+            throw new Error(`Failed to cache esbuild: ${error.message}`);
+        });
     });
 }
 async function run() {

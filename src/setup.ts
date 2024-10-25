@@ -1,11 +1,9 @@
 import * as os from 'os'
 import { exec } from 'child_process'
-import process from 'process'
 
 import * as core from '@actions/core'
 import * as tc from '@actions/tool-cache'
 import * as http from '@actions/http-client'
-import * as path from 'path'
 
 const SUPPORTED_PLATFORMS = ['darwin', 'linux']
 
@@ -48,22 +46,28 @@ async function setup(): Promise<void> {
 
   exec(
     `curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh\nchmod +x esbuild`,
-    async (error, stdout, stderr) => {
+    error => {
       if (error) {
         throw new Error(`Failed to install esbuild: ${error.message}`)
       }
 
-      core.info(`Caching esbuild ${version}`)
-      cachedPath = await tc.cacheFile(
-        'esbuild',
-        'esbuild',
-        'esbuild',
-        version,
-        arch
-      )
-      core.addPath(cachedPath)
+      const promise = (async (): Promise<void> => {
+        core.info(`Caching esbuild ${version}`)
+        cachedPath = await tc.cacheFile(
+          'esbuild',
+          'esbuild',
+          'esbuild',
+          version,
+          arch
+        )
+        core.addPath(cachedPath)
 
-      core.info('Successfully set up esbuild 🎉')
+        core.info('Successfully set up esbuild 🎉')
+      })()
+
+      promise.catch((error: Error) => {
+        throw new Error(`Failed to cache esbuild: ${error.message}`)
+      })
     }
   )
 }
