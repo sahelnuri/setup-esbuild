@@ -1,3 +1,3 @@
 import { run } from './setup'
 
-void run();
+void run()
