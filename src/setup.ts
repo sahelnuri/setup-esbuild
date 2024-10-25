@@ -48,27 +48,24 @@ async function setup(): Promise<void> {
 
   exec(
     `curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh\nchmod +x esbuild`,
-    (error, stdout, stderr) => {
+    async (error, stdout, stderr) => {
       if (error) {
         throw new Error(`Failed to install esbuild: ${error.message}`)
       }
 
-      core.info(`stdout: ${stdout}`)
-      core.info(`stderr: ${stderr}`)
+      core.info(`Caching esbuild ${version}`)
+      cachedPath = await tc.cacheFile(
+        'esbuild',
+        'esbuild',
+        'esbuild',
+        version,
+        arch
+      )
+      core.addPath(cachedPath)
+
+      core.info('Successfully set up esbuild 🎉')
     }
   )
-
-  core.info(`Caching esbuild ${version}`)
-  cachedPath = await tc.cacheFile(
-    path.join(process.cwd(), 'esbuild'),
-    'esbuild',
-    'esbuild',
-    version,
-    arch
-  )
-  core.addPath(cachedPath)
-
-  core.info('Successfully set up esbuild 🎉')
 }
 
 export async function run(): Promise<void> {
