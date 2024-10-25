@@ -28294,18 +28294,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
 const os = __importStar(__nccwpck_require__(857));
 const child_process_1 = __nccwpck_require__(5317);
-const process_1 = __importDefault(__nccwpck_require__(932));
 const core = __importStar(__nccwpck_require__(7484));
 const tc = __importStar(__nccwpck_require__(3472));
 const http = __importStar(__nccwpck_require__(4844));
-const path = __importStar(__nccwpck_require__(6928));
 const SUPPORTED_PLATFORMS = ['darwin', 'linux'];
 const getLatestVersion = async () => {
     const url = 'https://api.github.com/repos/evanw/esbuild/releases/latest';
@@ -28332,17 +28327,15 @@ async function setup() {
         return;
     }
     core.info(`Setting up esbuild ${version} for ${platform}-${arch}`);
-    (0, child_process_1.exec)(`curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh\nchmod +x esbuild`, (error, stdout, stderr) => {
+    (0, child_process_1.exec)(`curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh\nchmod +x esbuild`, async (error, stdout, stderr) => {
         if (error) {
             throw new Error(`Failed to install esbuild: ${error.message}`);
         }
-        core.info(`stdout: ${stdout}`);
-        core.info(`stderr: ${stderr}`);
+        core.info(`Caching esbuild ${version}`);
+        cachedPath = await tc.cacheFile('esbuild', 'esbuild', 'esbuild', version, arch);
+        core.addPath(cachedPath);
+        core.info('Successfully set up esbuild 🎉');
     });
-    core.info(`Caching esbuild ${version}`);
-    cachedPath = await tc.cacheFile(path.join(process_1.default.cwd(), 'esbuild'), 'esbuild', 'esbuild', version, arch);
-    core.addPath(cachedPath);
-    core.info('Successfully set up esbuild 🎉');
 }
 async function run() {
     try {
@@ -28510,14 +28503,6 @@ module.exports = require("path");
 
 "use strict";
 module.exports = require("perf_hooks");
-
-/***/ }),
-
-/***/ 932:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("process");
 
 /***/ }),
 
