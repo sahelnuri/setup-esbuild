@@ -1,5 +1,6 @@
 name: 'Setup esbuild'
-description: 'This action sets up esbuild for use in actions by adding it to the PATH'
+description:
+  'This action sets up esbuild for use in actions by adding it to the PATH'
 author: 'Sahel Nuri'
 
 inputs:
